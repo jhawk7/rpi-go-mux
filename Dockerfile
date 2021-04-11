@@ -2,7 +2,7 @@
 FROM hypriot/rpi-golang
 
 # set a workdir inside docker
-WORKDIR ~/go/src/github.com/dev/rpi-go-mux
+WORKDIR ~/go/src/github.com/jhawk7/rpi-go-mux
 
 # copy . (all in the current directory) to . (WORKDIR)
 COPY . .

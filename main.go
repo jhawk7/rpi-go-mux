@@ -1,12 +1,15 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"log"
-	"net/http"
-
 	"github.com/gorilla/mux"
+	"net/http"
+	"fmt"
+	"encoding/json"
+	_"bytes"
+	"io"
+	"io/ioutil"
+	"os"
+	"log"
 )
 
 type Response struct {
@@ -25,6 +28,7 @@ func main() {
 	router.HandleFunc("/", RootHandler).Methods("GET")
 	router.HandleFunc("/isgomuxup", HealthCheck).Methods("GET")
 	router.HandleFunc("/sendUsers", ProcessUsers).Methods("POST")
+	router.HandleFunc("/upload", UploadHandler).Methods("POST")
 	log.Fatal(http.ListenAndServe(":8888", router))
 }
 
@@ -85,4 +89,40 @@ func ProcessUsers(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(data)
 	}
+}
+
+func UploadHandler(w http.ResponseWriter, r *http.Request) {
+	// limit upload size to 10 MB
+	r.ParseMultipartForm(10 << 20)
+	//var fileBuff bytes.Buffer
+	file, header, fileErr := r.FormFile("file")
+	if fileErr != nil {
+		err := fmt.Sprintf("Error reading form file: [%v]", fileErr)
+		fmt.Printf("%v\n", err)
+		createResponse(w, http.StatusBadRequest, err)
+		return
+	}
+	defer file.Close()
+
+	fmt.Printf("Received file: [%v]\n", header.Filename)
+	dst, _ := os.Create("received.zip")
+	defer dst.Close()
+	io.Copy(dst, file)
+
+	_, readErr := ioutil.ReadFile("./received.zip")
+	if readErr != nil {
+		err := fmt.Sprintf("Error saving uploaded file: [%v]", readErr)
+		fmt.Printf("%v\n", err)
+		createResponse(w, http.StatusInternalServerError, err)
+		return
+	}
+	fmt.Printf("Uploaded File Length: [%d]", header.Size)
+	createResponse(w, http.StatusAccepted, "")
+	return
+}
+
+func createResponse(w http.ResponseWriter, status int, body string) {
+	//data := bytes(body)
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(body)
 }
