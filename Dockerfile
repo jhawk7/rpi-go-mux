@@ -1,5 +1,5 @@
 # inherit from the Go official Image
-FROM hypriot/rpi-golang
+FROM arm32v7/golang:1.17.5-alpine3.15
 
 # set a workdir inside docker
 WORKDIR ~/go/src/github.com/jhawk7/rpi-go-mux
