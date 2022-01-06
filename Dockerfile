@@ -8,8 +8,7 @@ WORKDIR ~/go/src/github.com/jhawk7/rpi-go-mux
 COPY . .
 
 # run a command - this will run when building the image
-RUN go get -u github.com/gorilla/mux; exit 0
-RUN go build -o rpi-go-mux; exit 0
+RUN go build -o rpi-go-mux
 
 # the port we wish to expose
 EXPOSE 8888
