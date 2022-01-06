@@ -1,15 +1,15 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
-	"net/http"
-	"fmt"
+	_ "bytes"
 	"encoding/json"
-	_"bytes"
+	"fmt"
+	"github.com/gorilla/mux"
 	"io"
 	"io/ioutil"
-	"os"
 	"log"
+	"net/http"
+	"os"
 )
 
 type Response struct {
@@ -18,8 +18,8 @@ type Response struct {
 }
 
 type User struct {
-	Name	string 	`json:"name"`
-	Age		int 	`json:"age"`
+	Name string `json:"name"`
+	Age  int    `json:"age"`
 }
 
 func main() {
@@ -52,9 +52,10 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func HealthCheck(w http.ResponseWriter, r *http.Request) {
+	host, _ := os.Hostname()
 	response := &Response{
 		Status: http.StatusOK,
-		Body:   "go-mux is up!",
+		Body:   fmt.Sprintf("go-mux is up and running on %v!", host),
 	}
 	data, jsonErr := json.Marshal(response)
 	if jsonErr != nil {
